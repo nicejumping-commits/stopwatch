@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Herbalife Prestige v29 - UI Polished Edition</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --hl-green-deep: #2E5A1C;     
+            --hl-green-primary: #7AC142;
+            --hl-white: #FFFFFF;
+            --hl-light-gray: #F4F7F6;
+            --hl-text-dark: #333333;
+            --hl-red: #FF3B30;
+            --hl-orange: #FF9500;
+            --hl-gold: #FFD700;
+        }
+
+        body {
+            display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0;
+            background: linear-gradient(180deg, #e2e2e2 0%, #c9d6ff 100%);
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden; 
+        }
+
+        .stopwatch-container {
+            width: 92%; max-width: 420px; 
+            height: 85vh; max-height: 720px;
+            background-color: var(--hl-green-deep);
+            padding: 15px; border-radius: 40px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+            display: flex; flex-direction: column; justify-content: space-between;
+            color: var(--hl-white); border: 4px solid var(--hl-green-primary);
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .settings-btn {
+            position: absolute; top: 12px; right: 18px;
+            font-size: 1.6rem; cursor: pointer; z-index: 10;
+            transition: transform 0.3s ease;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .display-wrapper {
+            background-color: var(--hl-white); border-radius: 25px; 
+            padding: 12px 5px; margin-top: 40px;
+            display: flex; flex-direction: column; align-items: center;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.1);
+            width: 100%;
+        }
+        
+        .display {
+            color: var(--hl-text-dark); font-size: 4.5rem; font-weight: 900;
+            font-family: 'Courier New', monospace; display: flex; gap: 0; 
+            letter-spacing: -12px; align-items: center;
+        }
+        
+        .status-text {
+            font-weight: 900; margin-top: 2px; font-size: 1.5rem; 
+            min-height: 2.5rem; text-transform: uppercase;
+            color: var(--hl-green-primary); text-align: center;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .achievement-area {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 5px; margin: 5px 0; width: 100%;
+        }
+
+        /* [수정] 뱃지 명칭 글자 크기 확대 */
+        .badge-title-display {
+            font-size: 1.5rem; /* 기존 1.2rem에서 확대 */
+            font-weight: 900; color: var(--hl-gold);
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
+            letter-spacing: 1px; margin-bottom: 2px;
+        }
+
+        .badge-streak-row {
+            display: flex; justify-content: center; align-items: center;
+            gap: 25px; width: 100%;
+        }
+
+        .badge-box {
+            width: 85px; height: 85px; 
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px; display: flex; justify-content: center; align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+        }
+        .badge-box img { width: 90%; height: 90%; object-fit: contain; }
+
+        .badge-motivation-msg {
+            font-size: 0.82rem; font-weight: 800; color: #E9F5DC;
+            text-align: center; line-height: 1.4; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .streak-container {
+            display: flex; align-items: center; gap: 8px;
+            font-weight: 800; font-size: 1.8rem;
+            color: var(--hl-white);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .streak-flame { font-size: 2.3rem; }
+        #streak-count { border-bottom: 2px dashed rgba(255,255,255,0.5); padding: 0 5px; cursor: pointer; }
+
+        .settings-area {
+            display: flex; flex-direction: column; gap: 10px;
+            margin: 5px 0; padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .setting-row { display: flex; justify-content: space-between; align-items: center; font-size: 1.3rem; font-weight: 700; }
+        .interval-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 5px; }
+        .setting-item { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 1rem; font-weight: 800; }
+        
+        .stepper { display: flex; align-items: center; gap: 3px; }
+        .step-btn {
+            width: 25px; height: 25px; border-radius: 5px; border: none;
+            background: var(--hl-green-primary); color: white; font-weight: bold; cursor: pointer;
+        }
+
+        /* [수정] 숫자 입력창 화살표(Spin Buttons) 제거 */
+        input[type="number"] {
+            width: 50px; border: none; border-radius: 8px; text-align: center;
+            font-weight: bold; font-size: 1.2rem; color: var(--hl-green-deep);
+            padding: 5px 0;
+            -moz-appearance: textfield; /* Firefox 전용 */
+        }
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none; /* Chrome, Safari, Edge 전용 */
+            margin: 0;
+        }
+        
+        input[type="checkbox"], input[type="radio"] { width: 22px; height: 22px; cursor: pointer; accent-color: var(--hl-green-primary); }
+        .disabled-group { opacity: 0.2; filter: grayscale(1); pointer-events: none; }
+
+        .button-group { display: flex; justify-content: center; gap: 12px; padding-bottom: 5px; }
+        .btn {
+            width: 85px; height: 85px; border-radius: 50%; border: none; color: white; font-weight: 900; cursor: pointer;
+            transition: all 0.3s; font-size: 1rem; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        .start-btn { background: var(--hl-green-primary); }
+        .stop-btn { background: #E74C3C; }
+        .reset-btn { background: #95A5A6; }
+
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 100; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: #E9F5DC; width: 90%; max-width: 380px; padding: 20px;
+            border-radius: 30px; color: var(--hl-text-dark); box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border: 3px solid var(--hl-green-primary); box-sizing: border-box;
+        }
+        .modal-title { font-size: 1.5rem; font-weight: 900; margin-bottom: 15px; text-align: center; color: var(--hl-green-deep); }
+        .report-msg { font-size: 1.2rem; font-weight: 800; color: var(--hl-green-deep); text-align: center; margin: 20px 0; line-height: 1.5; }
+        
+        .modal-box {
+            background: var(--hl-white); border-radius: 15px; padding: 12px;
+            margin-bottom: 12px; border: 1px solid #c9d8b8;
+        }
+
+        .join-btn {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; box-sizing: border-box;
+            border: 2px solid var(--hl-green-primary); border-radius: 12px;
+            padding: 10px; background: white; cursor: pointer; font-weight: 800; font-size: 1.1rem;
+            text-decoration: none; color: var(--hl-text-dark); margin-bottom: 15px;
+        }
+        .join-btn img { width: 30px; height: 30px; }
+
+        .record-links { display: flex; justify-content: space-around; font-size: 1rem; margin-top: 5px; }
+        .record-link { color: var(--hl-text-dark); cursor: pointer; text-decoration: underline; font-weight: 700; }
+        
+        .streak-mode-container { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .modal-option { display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 700; font-size: 0.95rem; white-space: nowrap; }
+
+        .daily-warning { color: var(--hl-red); font-size: 0.85rem; font-weight: 700; margin-top: 8px; display: none; line-height: 1.3; text-align: center; }
+        .reset-link { color: var(--hl-red); cursor: pointer; font-weight: 800; display: block; text-align: center; margin-top: 15px; }
+        
+        #data-display-area { margin-top: 10px; padding: 10px; background: #f0f4eb; border-radius: 10px; font-size: 0.9rem; display: none; }
+        .badge-collection { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin-top: 10px; }
+        .badge-collection img { width: 40px; height: 40px; }
+
+        .close-btn { 
+            background: var(--hl-green-primary); color: white; width: 100%; padding: 12px;
+            border: none; border-radius: 15px; font-weight: 800; font-size: 1.1rem; margin-top: 10px; cursor: pointer;
+        }
+        span[contenteditable="true"]:focus { background-color: rgba(255,255,255,0.2); outline: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="stopwatch-container">
+    <div id="settings-open-btn" class="settings-btn">⚙️</div>
+
+    <div class="display-wrapper">
+        <div class="display" id="display">
+            <span id="min-val" contenteditable="true">00</span>:<span id="sec-val" contenteditable="true">00</span>:<span id="ms-val" contenteditable="true">00</span>
+        </div>
+        <div class="status-text" id="status-text">READY</div> 
+    </div>
+
+    <div class="achievement-area">
+        <div id="badge-name-label" class="badge-title-display">슈퍼바이저</div>
+
+        <div class="badge-streak-row">
+            <div class="badge-box">
+                <img id="badge-icon" src="" alt="Badge">
+            </div>
+            <div class="streak-container">
+                <span class="streak-flame">🔥</span>
+                <span id="streak-count" contenteditable="true">0</span>일째
+            </div>
+        </div>
+        <div id="badge-status-msg" class="badge-motivation-msg">목표를 향해 달려보세요!</div>
+    </div>
+
+    <div class="settings-area">
+        <div class="setting-row">
+            <span>시간 모드</span>
+            <div style="display:flex; gap:10px;">
+                <label><input type="radio" name="time-mode" value="60"> 60</label>
+                <label><input type="radio" name="time-mode" value="100" checked> 100</label>
+            </div>
+        </div>
+        <div class="setting-row">
+            <span>인터벌 모드</span>
+            <input type="checkbox" id="interval-on">
+        </div>
+        <div id="interval-inputs" class="disabled-group interval-grid">
+            <div class="setting-item">세트수 
+                <div class="stepper">
+                    <button class="step-btn" id="sets-minus">-</button>
+                    <input type="number" id="goal-sets" value="0">
+                    <button class="step-btn" id="sets-plus">+</button>
+                </div>
+            </div>
+            <div class="setting-item">운동시간
+                <div class="stepper">
+                    <button class="step-btn" id="work-minus">-</button>
+                    <input type="number" id="work-time" value="0">
+                    <button class="step-btn" id="work-plus">+</button>
+                </div>
+            </div>
+            <div class="setting-item">휴식시간
+                <div class="stepper">
+                    <button class="step-btn" id="rest-minus">-</button>
+                    <input type="number" id="rest-time" value="0">
+                    <button class="step-btn" id="rest-plus">+</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="button-group">
+        <button id="reset-btn" class="btn reset-btn">RESET</button>
+        <button id="start-btn" class="btn start-btn">START</button>
+        <button id="stop-btn" class="btn stop-btn">STOP</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="settings-modal">
+    <div class="modal-content">
+        <div class="modal-title">설정</div>
+        <div id="join-go-btn" class="join-btn">
+            <img id="join-logo" src="" alt="logo"> 허벌라이프 회원가입
+        </div>
+        <div class="modal-box">
+            <span class="modal-label" style="text-align: center; border-bottom: 1px solid #eee; padding-bottom: 5px;">기록 관리</span>
+            <div class="record-links">
+                <span class="record-link" id="view-record-btn">나의 운동기록</span>
+                <span class="record-link" id="view-badges-btn">내가 모은 배지</span>
+            </div>
+            <div id="data-display-area"></div>
+            <span class="reset-link" id="full-reset-btn" style="cursor: pointer; text-decoration: underline;">기록 초기화</span>
+        </div>
+        <div class="modal-box">
+            <span class="modal-label">운동 모드 설정</span>
+            <div class="streak-mode-container">
+                <label class="modal-option"><input type="radio" name="streak-mode" value="cumulative" checked> 운동한 날만</label>
+                <label class="modal-option"><input type="radio" name="streak-mode" value="daily"> 매일 매일</label>
+            </div>
+            <div id="daily-warning-text" class="daily-warning">하루라도 운동을 안하면 다시 0일 부터 시작합니다.</div>
+        </div>
+        <button id="settings-close-btn" class="close-btn">확인</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="report-modal">
+    <div class="modal-content">
+        <div class="modal-title">🏆 성과 리포트</div>
+        <div class="report-msg" id="report-main-msg">오늘 30분 달성! 훌륭합니다!</div>
+        <div class="report-sub" id="report-sub-msg">설정한 모든 세트를 완수했습니다.</div>
+        <button class="close-btn" id="report-close-btn">확인</button>
+    </div>
+</div>
+
+<script>
+    // [이미지 데이터] 직접 링크 유지
+    const IMG_URLS = {
+        badge1: "https://i.ibb.co/29wC93R/badge1.png",
+        badge2: "https://i.ibb.co/KcS1R4tR/badge2.png",
+        badge3: "https://i.ibb.co/B2WBSkvH/badge3.png",
+        badge4: "https://i.ibb.co/HfyH1MYH/badge4.png",
+        badge5: "https://i.ibb.co/WNBYY0tM/badge5.png",
+        badge6: "https://i.ibb.co/CR0jVD3/badge6.png",
+        badge7: "https://i.ibb.co/KcZndrJ7/badge7.png",
+        badge8: "https://i.ibb.co/JjxDDr2Q/badge8.png",
+        badge9: "https://i.ibb.co/k2912tWn/badge9.png"
+    };
+
+    const badgeMap = [
+        { day: 300, file: IMG_URLS.badge9, name: '파운더스클럽' },
+        { day: 200, file: IMG_URLS.badge8, name: '체어맨스클럽' },
+        { day: 150, file: IMG_URLS.badge7, name: '프레지던트팀' },
+        { day: 100, file: IMG_URLS.badge6, name: '7500 밀리어네어팀' },
+        { day: 50,  file: IMG_URLS.badge5, name: '밀리어네어팀' },
+        { day: 30,  file: IMG_URLS.badge4, name: '2500 겟팀' },
+        { day: 10,  file: IMG_URLS.badge3, name: '겟팀' },
+        { day: 3,   file: IMG_URLS.badge2, name: '월드팀' },
+        { day: 0,   file: IMG_URLS.badge1, name: '슈퍼바이저' }
+    ];
+
+    let startTime, elapsedTime = 0, timerInterval, restInterval;
+    let currentRep = 0, isResting = false, workStartMs = 0, audioCtx;
+    let totalTime = { today: 0, month: 0, all: 0 };
+    let lastTickSecond = -1;
+
+    const streakSpan = document.getElementById('streak-count'), badgeImg = document.getElementById('badge-icon');
+    const minSpan = document.getElementById('min-val'), secSpan = document.getElementById('sec-val'), msSpan = document.getElementById('ms-val');
+    const statusText = document.getElementById('status-text'), intervalCheck = document.getElementById('interval-on');
+    const dataArea = document.getElementById('data-display-area');
+    const badgeStatusMsg = document.getElementById('badge-status-msg');
+    const badgeNameLabel = document.getElementById('badge-name-label');
+
+    function init() { loadStats(); initStreakUI(); document.getElementById('join-logo').src = IMG_URLS.badge1; updateReadyStatus(); }
+
+    function loadStats() {
+        const saved = JSON.parse(localStorage.getItem('exerciseStats')) || { today: 0, month: 0, all: 0, lastDate: "", lastMonth: "" };
+        if (saved.lastDate !== new Date().toDateString()) saved.today = 0;
+        totalTime = saved;
+    }
+
+    function initStreakUI() {
+        const streak = parseInt(localStorage.getItem('streakCount')) || 0;
+        const mode = localStorage.getItem('streakMode') || 'cumulative';
+        document.querySelector('input[name="streak-mode"][value="' + mode + '"]').checked = true;
+        streakSpan.innerText = streak;
+        updateBadgeDisplay(streak);
+    }
+
+    function updateBadgeDisplay(streak) {
+        const currentBadgeIndex = badgeMap.findIndex(b => streak >= b.day);
+        const currentBadge = badgeMap[currentBadgeIndex];
+        if (currentBadge) {
+            badgeImg.src = currentBadge.file;
+            badgeNameLabel.innerText = currentBadge.name;
+            if (streak >= 300) {
+                badgeStatusMsg.innerText = "당신은 세계적인 파운더스 클럽입니다~^^";
+            } else {
+                const nextBadge = badgeMap[currentBadgeIndex - 1];
+                if (nextBadge) {
+                    const daysLeft = nextBadge.day - streak;
+                    badgeStatusMsg.innerText = `다음 ${nextBadge.name}까지 ${daysLeft}일 남았습니다!`;
+                }
+            }
+        }
+    }
+
+    function addExerciseTime(ms) {
+        totalTime.today += ms; totalTime.month += ms; totalTime.all += ms;
+        totalTime.lastDate = new Date().toDateString();
+        localStorage.setItem('exerciseStats', JSON.stringify(totalTime));
+        updateReadyStatus();
+    }
+
+    function updateReadyStatus() {
+        if (!timerInterval && !isResting) {
+            const f = ms => { let s = Math.floor(ms/1000); return Math.floor(s/3600) + "시간 " + Math.floor((s%3600)/60) + "분 " + (s%60) + "초"; };
+            statusText.innerText = "오늘 누적: " + f(totalTime.today);
+            statusText.style.color = "var(--hl-green-primary)";
+            statusText.style.fontSize = "0.9rem";
+        }
+    }
+
+    function showPerformanceReport() {
+        const f = ms => { let s = Math.floor(ms/1000); let m = Math.floor(s/60); return (m > 0 ? m + "분 " : "") + (s%60) + "초"; };
+        document.getElementById('report-main-msg').innerHTML = "오늘 총 " + f(totalTime.today) + " 달성!<br>훌륭합니다!";
+        document.getElementById('report-modal').style.display = 'flex';
+    }
+
+    function playMechanicalTick() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.type = 'sine'; osc.frequency.setValueAtTime(150, now); osc.frequency.exponentialRampToValueAtTime(40, now + 0.03);
+        gain.gain.setValueAtTime(0.08, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+        osc.connect(gain); gain.connect(audioCtx.destination); osc.start(now); osc.stop(now + 0.03);
+    }
+
+    function playClassicFanfare() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const now = audioCtx.currentTime;
+        const melody = [{ f: 523.25, t: 0 }, { f: 523.25, t: 0.2 }, { f: 523.25, t: 0.4 }, { f: 659.25, t: 0.6 }, { f: 783.99, t: 1.0 }];
+        melody.forEach(note => {
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.frequency.value = note.f; osc.connect(gain); gain.connect(audioCtx.destination);
+            gain.gain.setValueAtTime(0.12, now + note.t); gain.gain.exponentialRampToValueAtTime(0.01, now + note.t + 0.25);
+            osc.start(now + note.t); osc.stop(now + note.t + 0.25);
+        });
+    }
+
+    function playSound(freq, duration, volume = 0.1) {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination); osc.frequency.value = freq;
+        gain.gain.setValueAtTime(volume, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.start(); osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function startTimer() {
+        if (timerInterval || isResting) return;
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        if (statusText.innerText.includes("오늘")) { currentRep = 0; }
+        syncTimeFromDisplay(); startTime = Date.now();
+        lastTickSecond = Math.floor(elapsedTime / 1000);
+        timerInterval = setInterval(update, 10);
+        statusText.style.color = "var(--hl-red)";
+        statusText.style.fontSize = "1.5rem";
+    }
+
+    function update() {
+        const now = Date.now(); const diff = now - startTime + elapsedTime;
+        const currentSecond = Math.floor(diff / 1000);
+        if (currentSecond > lastTickSecond) { playMechanicalTick(); lastTickSecond = currentSecond; }
+        if (intervalCheck.checked && !isResting) {
+            const goal = parseInt(document.getElementById('goal-sets').value) || 0;
+            const workLimit = (parseInt(document.getElementById('work-time').value) || 0) * 1000;
+            if (diff >= workStartMs + workLimit) {
+                addExerciseTime(workLimit); elapsedTime = workStartMs + workLimit; renderDisplay(elapsedTime); currentRep++;
+                if (goal > 0 && currentRep >= goal) {
+                    stopEngine("FINISH!"); confetti({ particleCount: 180, spread: 80, origin: { y: 0.6 } }); playClassicFanfare(); 
+                    updateStreakLogic(); showPerformanceReport(); return; 
+                }
+                startRestCycle(); return;
+            }
+        }
+        renderDisplay(diff);
+        if (!isResting) {
+            const goal = document.getElementById('goal-sets').value;
+            statusText.innerText = intervalCheck.checked ? "SET " + (currentRep + 1) + "/" + goal + " RUN" : "RUN";
+        }
+    }
+
+    function stopEngine(status = "PAUSED") {
+        if (timerInterval) {
+            let session = Date.now() - startTime;
+            if (session > 500) { addExerciseTime(session); if (!intervalCheck.checked) updateStreakLogic(); }
+            elapsedTime += session; clearInterval(timerInterval); timerInterval = null;
+        }
+        if (restInterval) { clearInterval(restInterval); restInterval = null; }
+        isResting = false;
+        if (status !== "FINISH!") updateReadyStatus();
+    }
+
+    function updateStreakLogic() {
+        const today = new Date().toDateString(); const lastDate = localStorage.getItem('lastSuccessDate');
+        if (lastDate !== today) {
+            let streak = (parseInt(localStorage.getItem('streakCount')) || 0) + 1;
+            localStorage.setItem('lastSuccessDate', today); localStorage.setItem('streakCount', streak);
+            streakSpan.innerText = streak; updateBadgeDisplay(streak);
+        }
+    }
+
+    function startRestCycle() {
+        clearInterval(timerInterval); timerInterval = null; isResting = true;
+        let left = parseInt(document.getElementById('rest-time').value) || 0;
+        statusText.innerText = "REST " + left; statusText.style.color = "#FFB800";
+        restInterval = setInterval(() => {
+            if (left <= 3 && left > 0) playSound(440, 0.15); 
+            left--; if (left > 0) statusText.innerText = "REST " + left;
+            if (left <= 0) { clearInterval(restInterval); isResting = false; workStartMs = elapsedTime; playSound(1000, 0.2, 0.2); startTimer(); }
+        }, 1000);
+    }
+
+    function renderDisplay(diff) {
+        const base = parseInt(document.querySelector('input[name="time-mode"]:checked').value);
+        let centi = Math.floor(diff / 10);
+        minSpan.innerText = Math.floor(centi/100/base).toString().padStart(2,'0');
+        secSpan.innerText = (Math.floor(centi/100)%base).toString().padStart(2,'0');
+        msSpan.innerText = (centi%100).toString().padStart(2,'0');
+    }
+
+    function syncTimeFromDisplay() {
+        const m = parseInt(minSpan.innerText)||0, s = parseInt(secSpan.innerText)||0, ms = parseInt(msSpan.innerText)||0;
+        const base = parseInt(document.querySelector('input[name="time-mode"]:checked').value);
+        elapsedTime = ((m * base + s) * 1000) + (ms * 10);
+        workStartMs = elapsedTime;
+    }
+
+    document.getElementById('start-btn').onclick = startTimer;
+    document.getElementById('stop-btn').onclick = () => stopEngine("PAUSED");
+    document.getElementById('reset-btn').onclick = () => { stopEngine("PAUSED"); elapsedTime = 0; currentRep = 0; renderDisplay(0); document.querySelectorAll('#interval-inputs input').forEach(i => i.value = "0"); updateReadyStatus(); };
+    document.getElementById('report-close-btn').onclick = () => { document.getElementById('report-modal').style.display = 'none'; updateReadyStatus(); };
+    document.getElementById('settings-open-btn').onclick = () => { dataArea.style.display = 'none'; document.getElementById('settings-modal').style.display = 'flex'; };
+    document.getElementById('settings-close-btn').onclick = () => document.getElementById('settings-modal').style.display = 'none';
+    document.getElementById('join-go-btn').onclick = () => { alert("Sponsor(스폰서) 82y2040563\nFirst Name 미옥(mi-ok) Last Name 강(Kang)"); window.open('https://www.herbalife-application.com/kakao/join/joinMainindex.html', '_blank'); };
+    document.getElementById('full-reset-btn').onclick = () => { if(confirm('모든 기록을 초기화하시겠습니까?')) { localStorage.clear(); location.reload(); } };
+    document.getElementById('interval-on').onchange = (e) => { const div = document.getElementById('interval-inputs'); if (e.target.checked) div.classList.remove('disabled-group'); else { div.classList.add('disabled-group'); document.querySelectorAll('#interval-inputs input').forEach(i => i.value = "0"); } };
+    function step(id, v) { const e = document.getElementById(id); let n = parseInt(e.value||0)+v; e.value = n < 0 ? 0 : n; }
+    document.getElementById('sets-plus').onclick = () => step('goal-sets', 1); document.getElementById('sets-minus').onclick = () => step('goal-sets', -1);
+    document.getElementById('work-plus').onclick = () => step('work-time', 1); document.getElementById('work-minus').onclick = () => step('work-time', -1);
+    document.getElementById('rest-plus').onclick = () => step('rest-time', 1); document.getElementById('rest-minus').onclick = () => step('rest-time', -1);
+    document.querySelectorAll('input[type="number"]').forEach(i => { i.onfocus = () => {if(i.value=='0')i.value='';}; i.onblur = () => {if(i.value=='')i.value='0';}; });
+    document.querySelectorAll('input[name="streak-mode"]').forEach(r => { r.onchange = () => { localStorage.setItem('streakMode', r.value); document.getElementById('daily-warning-text').style.display = (r.value==='daily'?'block':'none'); }; });
+    streakSpan.onblur = () => { let v = parseInt(streakSpan.innerText.replace(/[^0-9]/g, ''))||0; localStorage.setItem('streakCount', v); updateBadgeDisplay(v); };
+
+    init();
+</script>
+</body>
+</html>
