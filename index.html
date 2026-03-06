@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Herbalife Prestige v29 - UI Polished Edition</title>
+    <title>Herbalife Prestige v39 - Full Stability</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         :root {
@@ -69,10 +69,8 @@
             gap: 5px; margin: 5px 0; width: 100%;
         }
 
-        /* [수정] 뱃지 명칭 글자 크기 확대 */
         .badge-title-display {
-            font-size: 1.5rem; /* 기존 1.2rem에서 확대 */
-            font-weight: 900; color: var(--hl-gold);
+            font-size: 1.5rem; font-weight: 900; color: var(--hl-gold);
             text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
             letter-spacing: 1px; margin-bottom: 2px;
         }
@@ -122,17 +120,14 @@
             background: var(--hl-green-primary); color: white; font-weight: bold; cursor: pointer;
         }
 
-        /* [수정] 숫자 입력창 화살표(Spin Buttons) 제거 */
         input[type="number"] {
             width: 50px; border: none; border-radius: 8px; text-align: center;
             font-weight: bold; font-size: 1.2rem; color: var(--hl-green-deep);
             padding: 5px 0;
-            -moz-appearance: textfield; /* Firefox 전용 */
+            -moz-appearance: textfield;
         }
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-            -webkit-appearance: none; /* Chrome, Safari, Edge 전용 */
-            margin: 0;
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
+            -webkit-appearance: none; margin: 0;
         }
         
         input[type="checkbox"], input[type="radio"] { width: 22px; height: 22px; cursor: pointer; accent-color: var(--hl-green-primary); }
@@ -157,7 +152,6 @@
             border: 3px solid var(--hl-green-primary); box-sizing: border-box;
         }
         .modal-title { font-size: 1.5rem; font-weight: 900; margin-bottom: 15px; text-align: center; color: var(--hl-green-deep); }
-        .report-msg { font-size: 1.2rem; font-weight: 800; color: var(--hl-green-deep); text-align: center; margin: 20px 0; line-height: 1.5; }
         
         .modal-box {
             background: var(--hl-white); border-radius: 15px; padding: 12px;
@@ -176,12 +170,11 @@
         .record-links { display: flex; justify-content: space-around; font-size: 1rem; margin-top: 5px; }
         .record-link { color: var(--hl-text-dark); cursor: pointer; text-decoration: underline; font-weight: 700; }
         
-        .streak-mode-container { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .modal-option { display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 700; font-size: 0.95rem; white-space: nowrap; }
+        .daily-warning {
+            display: none; color: var(--hl-red); font-size: 0.85rem; font-weight: 700;
+            margin-top: 10px; line-height: 1.4; text-align: center;
+        }
 
-        .daily-warning { color: var(--hl-red); font-size: 0.85rem; font-weight: 700; margin-top: 8px; display: none; line-height: 1.3; text-align: center; }
-        .reset-link { color: var(--hl-red); cursor: pointer; font-weight: 800; display: block; text-align: center; margin-top: 15px; }
-        
         #data-display-area { margin-top: 10px; padding: 10px; background: #f0f4eb; border-radius: 10px; font-size: 0.9rem; display: none; }
         .badge-collection { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin-top: 10px; }
         .badge-collection img { width: 40px; height: 40px; }
@@ -190,7 +183,6 @@
             background: var(--hl-green-primary); color: white; width: 100%; padding: 12px;
             border: none; border-radius: 15px; font-weight: 800; font-size: 1.1rem; margin-top: 10px; cursor: pointer;
         }
-        span[contenteditable="true"]:focus { background-color: rgba(255,255,255,0.2); outline: none; border-radius: 5px; }
     </style>
 </head>
 <body>
@@ -200,18 +192,15 @@
 
     <div class="display-wrapper">
         <div class="display" id="display">
-            <span id="min-val" contenteditable="true">00</span>:<span id="sec-val" contenteditable="true">00</span>:<span id="ms-val" contenteditable="true">00</span>
+            <span id="min-val">00</span>:<span id="sec-val">00</span>:<span id="ms-val">00</span>
         </div>
         <div class="status-text" id="status-text">READY</div> 
     </div>
 
     <div class="achievement-area">
         <div id="badge-name-label" class="badge-title-display">슈퍼바이저</div>
-
         <div class="badge-streak-row">
-            <div class="badge-box">
-                <img id="badge-icon" src="" alt="Badge">
-            </div>
+            <div class="badge-box"><img id="badge-icon" src="" alt="Badge"></div>
             <div class="streak-container">
                 <span class="streak-flame">🔥</span>
                 <span id="streak-count" contenteditable="true">0</span>일째
@@ -271,19 +260,19 @@
             <img id="join-logo" src="" alt="logo"> 허벌라이프 회원가입
         </div>
         <div class="modal-box">
-            <span class="modal-label" style="text-align: center; border-bottom: 1px solid #eee; padding-bottom: 5px;">기록 관리</span>
+            <span class="modal-label" style="display:block; text-align: center; border-bottom: 1px solid #eee; padding-bottom: 5px;">기록 관리</span>
             <div class="record-links">
                 <span class="record-link" id="view-record-btn">나의 운동기록</span>
                 <span class="record-link" id="view-badges-btn">내가 모은 배지</span>
             </div>
             <div id="data-display-area"></div>
-            <span class="reset-link" id="full-reset-btn" style="cursor: pointer; text-decoration: underline;">기록 초기화</span>
+            <span class="reset-link" id="full-reset-btn" style="color: var(--hl-red); cursor: pointer; display: block; text-align: center; margin-top: 15px; font-weight: 800;">기록 초기화</span>
         </div>
         <div class="modal-box">
             <span class="modal-label">운동 모드 설정</span>
-            <div class="streak-mode-container">
-                <label class="modal-option"><input type="radio" name="streak-mode" value="cumulative" checked> 운동한 날만</label>
-                <label class="modal-option"><input type="radio" name="streak-mode" value="daily"> 매일 매일</label>
+            <div style="display:flex; justify-content:space-around; align-items:center; width:100%;">
+                <label><input type="radio" name="streak-mode" value="cumulative" checked> 운동한 날만</label>
+                <label><input type="radio" name="streak-mode" value="daily"> 매일 매일</label>
             </div>
             <div id="daily-warning-text" class="daily-warning">하루라도 운동을 안하면 다시 0일 부터 시작합니다.</div>
         </div>
@@ -294,232 +283,239 @@
 <div class="modal-overlay" id="report-modal">
     <div class="modal-content">
         <div class="modal-title">🏆 성과 리포트</div>
-        <div class="report-msg" id="report-main-msg">오늘 30분 달성! 훌륭합니다!</div>
-        <div class="report-sub" id="report-sub-msg">설정한 모든 세트를 완수했습니다.</div>
+        <div id="report-main-msg" style="font-size: 1.2rem; font-weight: 800; color: var(--hl-green-deep); text-align: center; margin: 20px 0; line-height: 1.5;"></div>
         <button class="close-btn" id="report-close-btn">확인</button>
     </div>
 </div>
 
 <script>
-    // [이미지 데이터] 직접 링크 유지
+    // v34 기반 안정 데이터 복구
     const IMG_URLS = {
-        badge1: "https://i.ibb.co/29wC93R/badge1.png",
-        badge2: "https://i.ibb.co/KcS1R4tR/badge2.png",
-        badge3: "https://i.ibb.co/B2WBSkvH/badge3.png",
-        badge4: "https://i.ibb.co/HfyH1MYH/badge4.png",
-        badge5: "https://i.ibb.co/WNBYY0tM/badge5.png",
-        badge6: "https://i.ibb.co/CR0jVD3/badge6.png",
-        badge7: "https://i.ibb.co/KcZndrJ7/badge7.png",
-        badge8: "https://i.ibb.co/JjxDDr2Q/badge8.png",
+        badge1: "https://i.ibb.co/29wC93R/badge1.png", badge2: "https://i.ibb.co/KcS1R4tR/badge2.png",
+        badge3: "https://i.ibb.co/B2WBSkvH/badge3.png", badge4: "https://i.ibb.co/HfyH1MYH/badge4.png",
+        badge5: "https://i.ibb.co/WNBYY0tM/badge5.png", badge6: "https://i.ibb.co/CR0jVD3/badge6.png",
+        badge7: "https://i.ibb.co/KcZndrJ7/badge7.png", badge8: "https://i.ibb.co/JjxDDr2Q/badge8.png",
         badge9: "https://i.ibb.co/k2912tWn/badge9.png"
     };
 
     const badgeMap = [
-        { day: 300, file: IMG_URLS.badge9, name: '파운더스클럽' },
-        { day: 200, file: IMG_URLS.badge8, name: '체어맨스클럽' },
-        { day: 150, file: IMG_URLS.badge7, name: '프레지던트팀' },
-        { day: 100, file: IMG_URLS.badge6, name: '7500 밀리어네어팀' },
-        { day: 50,  file: IMG_URLS.badge5, name: '밀리어네어팀' },
-        { day: 30,  file: IMG_URLS.badge4, name: '2500 겟팀' },
-        { day: 10,  file: IMG_URLS.badge3, name: '겟팀' },
-        { day: 3,   file: IMG_URLS.badge2, name: '월드팀' },
+        { day: 300, file: IMG_URLS.badge9, name: '파운더스클럽' }, { day: 200, file: IMG_URLS.badge8, name: '체어맨스클럽' },
+        { day: 150, file: IMG_URLS.badge7, name: '프레지던트팀' }, { day: 100, file: IMG_URLS.badge6, name: '7500 밀리어네어팀' },
+        { day: 50,  file: IMG_URLS.badge5, name: '밀리어네어팀' }, { day: 30,  file: IMG_URLS.badge4, name: '2500 겟팀' },
+        { day: 10,  file: IMG_URLS.badge3, name: '겟팀' }, { day: 3,   file: IMG_URLS.badge2, name: '월드팀' },
         { day: 0,   file: IMG_URLS.badge1, name: '슈퍼바이저' }
     ];
 
-    let startTime, elapsedTime = 0, timerInterval, restInterval;
-    let currentRep = 0, isResting = false, workStartMs = 0, audioCtx;
-    let totalTime = { today: 0, month: 0, all: 0 };
-    let lastTickSecond = -1;
-
-    const streakSpan = document.getElementById('streak-count'), badgeImg = document.getElementById('badge-icon');
-    const minSpan = document.getElementById('min-val'), secSpan = document.getElementById('sec-val'), msSpan = document.getElementById('ms-val');
-    const statusText = document.getElementById('status-text'), intervalCheck = document.getElementById('interval-on');
-    const dataArea = document.getElementById('data-display-area');
-    const badgeStatusMsg = document.getElementById('badge-status-msg');
-    const badgeNameLabel = document.getElementById('badge-name-label');
+    var startTime, elapsedTime = 0, timerInterval, restInterval, audioCtx;
+    var currentRep = 0, isResting = false, workStartMs = 0, lastTickSecond = -1;
+    var totalTime = { today: 0, month: 0, all: 0, lastDate: "" };
+    var wakeLockObj = null; // 초안정화 전역 변수
 
     function init() { loadStats(); initStreakUI(); document.getElementById('join-logo').src = IMG_URLS.badge1; updateReadyStatus(); }
 
     function loadStats() {
-        const saved = JSON.parse(localStorage.getItem('exerciseStats')) || { today: 0, month: 0, all: 0, lastDate: "", lastMonth: "" };
+        var saved = JSON.parse(localStorage.getItem('exerciseStats')) || { today: 0, month: 0, all: 0, lastDate: "" };
         if (saved.lastDate !== new Date().toDateString()) saved.today = 0;
         totalTime = saved;
     }
 
     function initStreakUI() {
-        const streak = parseInt(localStorage.getItem('streakCount')) || 0;
-        const mode = localStorage.getItem('streakMode') || 'cumulative';
+        var streak = parseInt(localStorage.getItem('streakCount')) || 0;
+        var mode = localStorage.getItem('streakMode') || 'cumulative';
         document.querySelector('input[name="streak-mode"][value="' + mode + '"]').checked = true;
-        streakSpan.innerText = streak;
-        updateBadgeDisplay(streak);
+        document.getElementById('daily-warning-text').style.display = (mode === 'daily') ? 'block' : 'none';
+        document.getElementById('streak-count').innerText = streak; updateBadgeDisplay(streak);
     }
 
     function updateBadgeDisplay(streak) {
-        const currentBadgeIndex = badgeMap.findIndex(b => streak >= b.day);
-        const currentBadge = badgeMap[currentBadgeIndex];
+        var currentIdx = badgeMap.findIndex(function(b) { return streak >= b.day; });
+        var currentBadge = badgeMap[currentIdx];
         if (currentBadge) {
-            badgeImg.src = currentBadge.file;
-            badgeNameLabel.innerText = currentBadge.name;
-            if (streak >= 300) {
-                badgeStatusMsg.innerText = "당신은 세계적인 파운더스 클럽입니다~^^";
-            } else {
-                const nextBadge = badgeMap[currentBadgeIndex - 1];
-                if (nextBadge) {
-                    const daysLeft = nextBadge.day - streak;
-                    badgeStatusMsg.innerText = `다음 ${nextBadge.name}까지 ${daysLeft}일 남았습니다!`;
-                }
+            document.getElementById('badge-icon').src = currentBadge.file;
+            document.getElementById('badge-name-label').innerText = currentBadge.name;
+            if (streak >= 300) document.getElementById('badge-status-msg').innerText = "당신은 세계적인 파운더스 클럽입니다~^^";
+            else {
+                var nextBadge = badgeMap[currentIdx - 1];
+                if (nextBadge) document.getElementById('badge-status-msg').innerText = "다음 " + nextBadge.name + "까지 " + (nextBadge.day - streak) + "일 남았습니다!";
             }
         }
     }
 
-    function addExerciseTime(ms) {
-        totalTime.today += ms; totalTime.month += ms; totalTime.all += ms;
-        totalTime.lastDate = new Date().toDateString();
-        localStorage.setItem('exerciseStats', JSON.stringify(totalTime));
-        updateReadyStatus();
-    }
-
     function updateReadyStatus() {
         if (!timerInterval && !isResting) {
-            const f = ms => { let s = Math.floor(ms/1000); return Math.floor(s/3600) + "시간 " + Math.floor((s%3600)/60) + "분 " + (s%60) + "초"; };
-            statusText.innerText = "오늘 누적: " + f(totalTime.today);
-            statusText.style.color = "var(--hl-green-primary)";
-            statusText.style.fontSize = "0.9rem";
+            var f = function(ms) { var s = Math.floor(ms/1000); return Math.floor(s/3600) + "시간 " + Math.floor((s%3600)/60) + "분 " + (s%60) + "초"; };
+            document.getElementById('status-text').innerText = "오늘 누적: " + f(totalTime.today);
+            document.getElementById('status-text').style.color = "var(--hl-green-primary)";
+            document.getElementById('status-text').style.fontSize = "0.9rem";
         }
     }
 
-    function showPerformanceReport() {
-        const f = ms => { let s = Math.floor(ms/1000); let m = Math.floor(s/60); return (m > 0 ? m + "분 " : "") + (s%60) + "초"; };
-        document.getElementById('report-main-msg').innerHTML = "오늘 총 " + f(totalTime.today) + " 달성!<br>훌륭합니다!";
-        document.getElementById('report-modal').style.display = 'flex';
+    // [최고 안정화] 화면 꺼짐 방지 - 고전적 함수 방식
+    function safeWakeLock() {
+        if (typeof navigator !== 'undefined' && navigator.wakeLock) {
+            try {
+                navigator.wakeLock.request('screen').then(function(l) { wakeLockObj = l; }).catch(function(){});
+            } catch(e) {}
+        }
     }
 
-    function playMechanicalTick() {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const now = audioCtx.currentTime;
-        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-        osc.type = 'sine'; osc.frequency.setValueAtTime(150, now); osc.frequency.exponentialRampToValueAtTime(40, now + 0.03);
-        gain.gain.setValueAtTime(0.08, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
-        osc.connect(gain); gain.connect(audioCtx.destination); osc.start(now); osc.stop(now + 0.03);
+    function releaseWakeLock() {
+        if (wakeLockObj) {
+            try { wakeLockObj.release(); wakeLockObj = null; } catch(e) {}
+        }
+    }
+
+    function playTick() {
+        try {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            var now = audioCtx.currentTime;
+            var osc = audioCtx.createOscillator(); var gain = audioCtx.createGain();
+            osc.type = 'sine'; osc.frequency.setValueAtTime(150, now); osc.frequency.exponentialRampToValueAtTime(40, now + 0.03);
+            gain.gain.setValueAtTime(0.12, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+            osc.connect(gain); gain.connect(audioCtx.destination); osc.start(now); osc.stop(now + 0.03);
+            var click = audioCtx.createOscillator(); var clickGain = audioCtx.createGain();
+            click.frequency.setValueAtTime(2500, now); clickGain.gain.setValueAtTime(0.04, now);
+            clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.01);
+            click.connect(clickGain); clickGain.connect(audioCtx.destination); click.start(now); click.stop(now + 0.01);
+        } catch(e) {}
+    }
+
+    function playSound(freq, duration, volume) {
+        try {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            var osc = audioCtx.createOscillator(); var gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination); osc.frequency.value = freq;
+            gain.gain.setValueAtTime(volume || 0.1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
     }
 
     function playClassicFanfare() {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const now = audioCtx.currentTime;
-        const melody = [{ f: 523.25, t: 0 }, { f: 523.25, t: 0.2 }, { f: 523.25, t: 0.4 }, { f: 659.25, t: 0.6 }, { f: 783.99, t: 1.0 }];
-        melody.forEach(note => {
-            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-            osc.frequency.value = note.f; osc.connect(gain); gain.connect(audioCtx.destination);
-            gain.gain.setValueAtTime(0.12, now + note.t); gain.gain.exponentialRampToValueAtTime(0.01, now + note.t + 0.25);
-            osc.start(now + note.t); osc.stop(now + note.t + 0.25);
-        });
-    }
-
-    function playSound(freq, duration, volume = 0.1) {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-        osc.connect(gain); gain.connect(audioCtx.destination); osc.frequency.value = freq;
-        gain.gain.setValueAtTime(volume, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-        osc.start(); osc.stop(audioCtx.currentTime + duration);
+        try {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            var now = audioCtx.currentTime;
+            var melody = [{f:523, t:0}, {f:523, t:0.2}, {f:523, t:0.4}, {f:659, t:0.6}, {f:783, t:1.0}];
+            melody.forEach(function(n) {
+                var o = audioCtx.createOscillator(); var g = audioCtx.createGain();
+                o.frequency.value = n.f; o.connect(g); g.connect(audioCtx.destination);
+                g.gain.setValueAtTime(0.15, now + n.t); g.gain.exponentialRampToValueAtTime(0.01, now + n.t + 0.3);
+                o.start(now + n.t); o.stop(now + n.t + 0.3);
+            });
+        } catch(e) {}
     }
 
     function startTimer() {
         if (timerInterval || isResting) return;
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') audioCtx.resume();
-        if (statusText.innerText.includes("오늘")) { currentRep = 0; }
-        syncTimeFromDisplay(); startTime = Date.now();
-        lastTickSecond = Math.floor(elapsedTime / 1000);
+        
+        safeWakeLock(); // [v34 기반에 추가된 유일한 기능]
+        
+        syncTimeFromDisplay(); startTime = Date.now(); lastTickSecond = -1;
         timerInterval = setInterval(update, 10);
-        statusText.style.color = "var(--hl-red)";
-        statusText.style.fontSize = "1.5rem";
+        document.getElementById('status-text').style.color = "var(--hl-red)";
+        document.getElementById('status-text').style.fontSize = "1.5rem";
     }
 
     function update() {
-        const now = Date.now(); const diff = now - startTime + elapsedTime;
-        const currentSecond = Math.floor(diff / 1000);
-        if (currentSecond > lastTickSecond) { playMechanicalTick(); lastTickSecond = currentSecond; }
-        if (intervalCheck.checked && !isResting) {
-            const goal = parseInt(document.getElementById('goal-sets').value) || 0;
-            const workLimit = (parseInt(document.getElementById('work-time').value) || 0) * 1000;
-            if (diff >= workStartMs + workLimit) {
-                addExerciseTime(workLimit); elapsedTime = workStartMs + workLimit; renderDisplay(elapsedTime); currentRep++;
+        var now = Date.now(); var diff = now - startTime + elapsedTime;
+        var curSec = Math.floor(diff / 1000);
+        if (!isResting && curSec > lastTickSecond) { playTick(); lastTickSecond = curSec; }
+
+        if (document.getElementById('interval-on').checked && !isResting) {
+            var workMs = (parseInt(document.getElementById('work-time').value) || 0) * 1000;
+            if (diff >= workStartMs + workMs) {
+                elapsedTime = workStartMs + workMs; renderDisplay(elapsedTime);
+                addExerciseTime(workMs); currentRep++;
+                var goal = parseInt(document.getElementById('goal-sets').value) || 0;
                 if (goal > 0 && currentRep >= goal) {
-                    stopEngine("FINISH!"); confetti({ particleCount: 180, spread: 80, origin: { y: 0.6 } }); playClassicFanfare(); 
-                    updateStreakLogic(); showPerformanceReport(); return; 
+                    stopEngine("FINISH!"); confetti(); playClassicFanfare(); updateStreakLogic();
+                    var f = function(ms) { var s = Math.floor(ms/1000); return Math.floor(s/60) + "분 " + (s%60) + "초"; };
+                    document.getElementById('report-main-msg').innerHTML = "오늘 총 " + f(totalTime.today) + " 달성!<br>훌륭합니다!";
+                    document.getElementById('report-modal').style.display = 'flex'; return;
                 }
                 startRestCycle(); return;
             }
         }
         renderDisplay(diff);
-        if (!isResting) {
-            const goal = document.getElementById('goal-sets').value;
-            statusText.innerText = intervalCheck.checked ? "SET " + (currentRep + 1) + "/" + goal + " RUN" : "RUN";
-        }
+        if (!isResting) document.getElementById('status-text').innerText = document.getElementById('interval-on').checked ? "SET " + (currentRep + 1) + "/" + document.getElementById('goal-sets').value + " RUN" : "RUN";
     }
 
-    function stopEngine(status = "PAUSED") {
+    function addExerciseTime(ms) {
+        totalTime.today += ms; totalTime.month = (totalTime.month || 0) + ms; totalTime.all = (totalTime.all || 0) + ms;
+        totalTime.lastDate = new Date().toDateString();
+        localStorage.setItem('exerciseStats', JSON.stringify(totalTime));
+        updateReadyStatus();
+    }
+
+    function stopEngine(status) {
+        releaseWakeLock(); // [보정]
         if (timerInterval) {
-            let session = Date.now() - startTime;
-            if (session > 500) { addExerciseTime(session); if (!intervalCheck.checked) updateStreakLogic(); }
+            var session = Date.now() - startTime;
+            if (session > 500) { addExerciseTime(session); if (!document.getElementById('interval-on').checked) updateStreakLogic(); }
             elapsedTime += session; clearInterval(timerInterval); timerInterval = null;
         }
         if (restInterval) { clearInterval(restInterval); restInterval = null; }
-        isResting = false;
-        if (status !== "FINISH!") updateReadyStatus();
-    }
-
-    function updateStreakLogic() {
-        const today = new Date().toDateString(); const lastDate = localStorage.getItem('lastSuccessDate');
-        if (lastDate !== today) {
-            let streak = (parseInt(localStorage.getItem('streakCount')) || 0) + 1;
-            localStorage.setItem('lastSuccessDate', today); localStorage.setItem('streakCount', streak);
-            streakSpan.innerText = streak; updateBadgeDisplay(streak);
-        }
+        isResting = false; if (status !== "FINISH!") updateReadyStatus();
     }
 
     function startRestCycle() {
         clearInterval(timerInterval); timerInterval = null; isResting = true;
-        let left = parseInt(document.getElementById('rest-time').value) || 0;
-        statusText.innerText = "REST " + left; statusText.style.color = "#FFB800";
-        restInterval = setInterval(() => {
-            if (left <= 3 && left > 0) playSound(440, 0.15); 
-            left--; if (left > 0) statusText.innerText = "REST " + left;
+        var left = parseInt(document.getElementById('rest-time').value) || 0;
+        document.getElementById('status-text').innerText = "REST " + left;
+        document.getElementById('status-text').style.color = "#FFB800";
+        restInterval = setInterval(function() {
+            if (left <= 3 && left > 0) playSound(440, 0.15, 0.1); 
+            left--; if (left > 0) document.getElementById('status-text').innerText = "REST " + left;
             if (left <= 0) { clearInterval(restInterval); isResting = false; workStartMs = elapsedTime; playSound(1000, 0.2, 0.2); startTimer(); }
         }, 1000);
     }
 
-    function renderDisplay(diff) {
-        const base = parseInt(document.querySelector('input[name="time-mode"]:checked').value);
-        let centi = Math.floor(diff / 10);
-        minSpan.innerText = Math.floor(centi/100/base).toString().padStart(2,'0');
-        secSpan.innerText = (Math.floor(centi/100)%base).toString().padStart(2,'0');
-        msSpan.innerText = (centi%100).toString().padStart(2,'0');
+    function updateStreakLogic() {
+        var today = new Date().toDateString(), last = localStorage.getItem('lastSuccessDate');
+        if (last !== today) {
+            var s = (parseInt(localStorage.getItem('streakCount')) || 0) + 1;
+            localStorage.setItem('lastSuccessDate', today); localStorage.setItem('streakCount', s);
+            document.getElementById('streak-count').innerText = s; updateBadgeDisplay(s);
+        }
+    }
+
+    function renderDisplay(d) {
+        var base = parseInt(document.querySelector('input[name="time-mode"]:checked').value);
+        var c = Math.floor(d / 10);
+        document.getElementById('min-val').innerText = Math.floor(c/100/base).toString().padStart(2,'0');
+        document.getElementById('sec-val').innerText = (Math.floor(c/100)%base).toString().padStart(2,'0');
+        document.getElementById('ms-val').innerText = (c%100).toString().padStart(2,'0');
     }
 
     function syncTimeFromDisplay() {
-        const m = parseInt(minSpan.innerText)||0, s = parseInt(secSpan.innerText)||0, ms = parseInt(msSpan.innerText)||0;
-        const base = parseInt(document.querySelector('input[name="time-mode"]:checked').value);
-        elapsedTime = ((m * base + s) * 1000) + (ms * 10);
-        workStartMs = elapsedTime;
+        var m = parseInt(document.getElementById('min-val').innerText)||0, s = parseInt(document.getElementById('sec-val').innerText)||0, ms = parseInt(document.getElementById('ms-val').innerText)||0;
+        var b = parseInt(document.querySelector('input[name="time-mode"]:checked').value);
+        elapsedTime = ((m * b + s) * 1000) + (ms * 10); workStartMs = elapsedTime;
     }
 
+    // 버튼 이벤트 리스너 (v34 기반)
     document.getElementById('start-btn').onclick = startTimer;
-    document.getElementById('stop-btn').onclick = () => stopEngine("PAUSED");
-    document.getElementById('reset-btn').onclick = () => { stopEngine("PAUSED"); elapsedTime = 0; currentRep = 0; renderDisplay(0); document.querySelectorAll('#interval-inputs input').forEach(i => i.value = "0"); updateReadyStatus(); };
-    document.getElementById('report-close-btn').onclick = () => { document.getElementById('report-modal').style.display = 'none'; updateReadyStatus(); };
-    document.getElementById('settings-open-btn').onclick = () => { dataArea.style.display = 'none'; document.getElementById('settings-modal').style.display = 'flex'; };
-    document.getElementById('settings-close-btn').onclick = () => document.getElementById('settings-modal').style.display = 'none';
-    document.getElementById('join-go-btn').onclick = () => { alert("Sponsor(스폰서) 82y2040563\nFirst Name 미옥(mi-ok) Last Name 강(Kang)"); window.open('https://www.herbalife-application.com/kakao/join/joinMainindex.html', '_blank'); };
-    document.getElementById('full-reset-btn').onclick = () => { if(confirm('모든 기록을 초기화하시겠습니까?')) { localStorage.clear(); location.reload(); } };
-    document.getElementById('interval-on').onchange = (e) => { const div = document.getElementById('interval-inputs'); if (e.target.checked) div.classList.remove('disabled-group'); else { div.classList.add('disabled-group'); document.querySelectorAll('#interval-inputs input').forEach(i => i.value = "0"); } };
-    function step(id, v) { const e = document.getElementById(id); let n = parseInt(e.value||0)+v; e.value = n < 0 ? 0 : n; }
-    document.getElementById('sets-plus').onclick = () => step('goal-sets', 1); document.getElementById('sets-minus').onclick = () => step('goal-sets', -1);
-    document.getElementById('work-plus').onclick = () => step('work-time', 1); document.getElementById('work-minus').onclick = () => step('work-time', -1);
-    document.getElementById('rest-plus').onclick = () => step('rest-time', 1); document.getElementById('rest-minus').onclick = () => step('rest-time', -1);
-    document.querySelectorAll('input[type="number"]').forEach(i => { i.onfocus = () => {if(i.value=='0')i.value='';}; i.onblur = () => {if(i.value=='')i.value='0';}; });
-    document.querySelectorAll('input[name="streak-mode"]').forEach(r => { r.onchange = () => { localStorage.setItem('streakMode', r.value); document.getElementById('daily-warning-text').style.display = (r.value==='daily'?'block':'none'); }; });
-    streakSpan.onblur = () => { let v = parseInt(streakSpan.innerText.replace(/[^0-9]/g, ''))||0; localStorage.setItem('streakCount', v); updateBadgeDisplay(v); };
+    document.getElementById('stop-btn').onclick = function() { stopEngine("PAUSED"); };
+    document.getElementById('reset-btn').onclick = function() { stopEngine("PAUSED"); elapsedTime = 0; currentRep = 0; renderDisplay(0); document.querySelectorAll('#interval-inputs input').forEach(function(i){ i.value = "0"; }); updateReadyStatus(); };
+    document.getElementById('view-record-btn').onclick = function() { document.getElementById('data-display-area').style.display = 'block'; var f = function(ms) { var s = Math.floor(ms/1000); return Math.floor(s/3600) + "시간 " + Math.floor((s%3600)/60) + "분 " + (s%60) + "초"; }; document.getElementById('data-display-area').innerHTML = "오늘: " + f(totalTime.today) + "<br>누적: " + f(totalTime.all || 0); };
+    document.getElementById('view-badges-btn').onclick = function() { document.getElementById('data-display-area').style.display = 'block'; var s = parseInt(localStorage.getItem('streakCount')) || 0, h = '<div class="badge-collection">'; badgeMap.slice().reverse().forEach(function(b){ if(s >= b.day) h += '<img src="' + b.file + '" title="' + b.name + '">'; }); document.getElementById('data-display-area').innerHTML = h + '</div>'; };
+    document.getElementById('settings-open-btn').onclick = function() { document.getElementById('data-display-area').style.display = 'none'; document.getElementById('settings-modal').style.display = 'flex'; };
+    document.getElementById('settings-close-btn').onclick = function() { document.getElementById('settings-modal').style.display = 'none'; };
+    document.getElementById('report-close-btn').onclick = function() { document.getElementById('report-modal').style.display = 'none'; updateReadyStatus(); };
+    document.getElementById('join-go-btn').onclick = function() { alert("Sponsor: 강미옥(82y2040563)"); window.open('https://www.herbalife-application.com/kakao/join/joinMainindex.html', '_blank'); };
+    document.getElementById('full-reset-btn').onclick = function() { if(confirm('기록을 초기화할까요?')) { localStorage.clear(); location.reload(); } };
+    document.getElementById('interval-on').onchange = function(e) { var div = document.getElementById('interval-inputs'); if (e.target.checked) div.classList.remove('disabled-group'); else div.classList.add('disabled-group'); };
+    function step(id, v) { var e = document.getElementById(id); var n = parseInt(e.value||0)+v; e.value = n < 0 ? 0 : n; }
+    document.getElementById('sets-plus').onclick = function() { step('goal-sets', 1); };
+    document.getElementById('sets-minus').onclick = function() { step('goal-sets', -1); };
+    document.getElementById('work-plus').onclick = function() { step('work-time', 1); };
+    document.getElementById('work-minus').onclick = function() { step('work-time', -1); };
+    document.getElementById('rest-plus').onclick = function() { step('rest-time', 1); };
+    document.getElementById('rest-minus').onclick = function() { step('rest-time', -1); };
+    document.querySelectorAll('input[name="streak-mode"]').forEach(function(r) { r.onchange = function() { localStorage.setItem('streakMode', r.value); document.getElementById('daily-warning-text').style.display = (r.value === 'daily') ? 'block' : 'none'; }; });
+    document.getElementById('streak-count').onblur = function() { var v = parseInt(document.getElementById('streak-count').innerText.replace(/[^0-9]/g, ''))||0; localStorage.setItem('streakCount', v); updateBadgeDisplay(v); };
 
     init();
 </script>
