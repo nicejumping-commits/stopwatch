@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Herbalife Prestige v42 - Daily Community</title>
+    <title>Herbalife Prestige v45 - Zero Lag Audio</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         :root {
@@ -23,7 +23,6 @@
             font-family: 'Segoe UI', sans-serif; overflow: hidden; 
         }
 
-        /* [수정] 오늘 참여 인원 표시 디자인 */
         .live-counter {
             position: absolute; top: 15px; left: 25px;
             font-size: 1.1rem; font-weight: 900; color: var(--hl-white);
@@ -288,7 +287,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
-    // [설정] 파이어베이스 정보
+    // 파이어베이스 설정 정보
     var firebaseConfig = {
         apiKey: "AIzaSyACP750T_12KThV_UjVQLqI-8tRPkV4-Fc",
         authDomain: "stop-watch-cf875.firebaseapp.com",
@@ -300,26 +299,20 @@
     firebase.initializeApp(firebaseConfig);
     var database = firebase.database();
 
-    // [신규] 오늘 하루 참여자 합산 및 중복 방지 로직
-    var todayStr = new Date().toISOString().split('T')[0]; // 예: 2026-03-12
+    var todayStr = new Date().toISOString().split('T')[0];
     var dailyRef = database.ref('dailyStats/' + todayStr);
-    
-    // 이 폰에서 오늘 이미 카운트했는지 확인
     var lastCheckIn = localStorage.getItem('lastParticipantCheckInDate');
     
     if (lastCheckIn !== todayStr) {
-        // 오늘 첫 방문인 경우에만 숫자를 1 올림
         dailyRef.transaction(function(curr) { return (curr || 0) + 1; });
         localStorage.setItem('lastParticipantCheckInDate', todayStr);
     }
 
-    // 화면에 실시간으로 '오늘의 총 참여자' 표시
     dailyRef.on('value', function(snap) {
         var count = snap.val() || 1;
         document.getElementById('online-count').innerText = count;
     });
 
-    // ---------------- v39 안정 로직 100% 보존 ----------------
     const IMG_URLS = {
         badge1: "https://i.ibb.co/29wC93R/badge1.png", badge2: "https://i.ibb.co/KcS1R4tR/badge2.png",
         badge3: "https://i.ibb.co/B2WBSkvH/badge3.png", badge4: "https://i.ibb.co/HfyH1MYH/badge4.png",
@@ -388,25 +381,33 @@
 
     function releaseWakeLock() { if (wakeLockObj) { try { wakeLockObj.release(); wakeLockObj = null; } catch(e) {} } }
 
+    // [최적화] 오디오 컨텍스트 지연 시간 최소화
     function playTick() {
         try {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            // 스마트폰의 오디오 출력 지연을 고려하여 최대한 직접적인 경로 사용
             var now = audioCtx.currentTime;
             var osc = audioCtx.createOscillator(); var gain = audioCtx.createGain();
-            osc.type = 'sine'; osc.frequency.setValueAtTime(150, now); osc.frequency.exponentialRampToValueAtTime(40, now + 0.03);
-            gain.gain.setValueAtTime(0.12, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
-            osc.connect(gain); gain.connect(audioCtx.destination); osc.start(now); osc.stop(now + 0.03);
+            osc.type = 'sine'; osc.frequency.setValueAtTime(150, now); 
+            osc.frequency.exponentialRampToValueAtTime(40, now + 0.02); // 0.03 -> 0.02로 단축
+            gain.gain.setValueAtTime(0.12, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(now); osc.stop(now + 0.02);
+            
             var click = audioCtx.createOscillator(); var clickGain = audioCtx.createGain();
             click.frequency.setValueAtTime(2500, now); clickGain.gain.setValueAtTime(0.04, now);
             clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.01);
-            click.connect(clickGain); clickGain.connect(audioCtx.destination); click.start(now); click.stop(now + 0.01);
+            click.connect(clickGain); clickGain.connect(audioCtx.destination);
+            click.start(now); click.stop(now + 0.01);
         } catch(e) {}
     }
 
     function playSound(freq, duration, volume) {
         try {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
             var osc = audioCtx.createOscillator(); var gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination); osc.frequency.value = freq;
             gain.gain.setValueAtTime(volume || 0.1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
@@ -417,6 +418,7 @@
     function playClassicFanfare() {
         try {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
             var now = audioCtx.currentTime;
             var melody = [{f:523, t:0}, {f:523, t:0.2}, {f:523, t:0.4}, {f:659, t:0.6}, {f:783, t:1.0}];
             melody.forEach(function(n) {
@@ -432,8 +434,18 @@
         if (timerInterval || isResting) return;
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') audioCtx.resume();
+        
+        var goal = parseInt(document.getElementById('goal-sets').value) || 0;
+        if (document.getElementById('interval-on').checked && goal > 0 && currentRep >= goal) {
+            currentRep = 0; elapsedTime = 0; workStartMs = 0; renderDisplay(0);
+        }
+
         safeWakeLock();
-        syncTimeFromDisplay(); startTime = Date.now(); lastTickSecond = -1;
+        syncTimeFromDisplay(); startTime = Date.now(); 
+        
+        // [디테일 보정] 재시작 시 소리 겹침 방지
+        lastTickSecond = Math.floor(elapsedTime / 1000); 
+
         timerInterval = setInterval(update, 10);
         document.getElementById('status-text').style.color = "var(--hl-red)";
         document.getElementById('status-text').style.fontSize = "1.5rem";
@@ -441,26 +453,37 @@
 
     function update() {
         var now = Date.now(); var diff = now - startTime + elapsedTime;
-        var curSec = Math.floor(diff / 1000);
-        if (!isResting && curSec > lastTickSecond) { playTick(); lastTickSecond = curSec; }
+        
+        // [핵심 해결] 모바일 지연 보정을 위한 고밀도 초 단위 체크
+        // 정수 초(1.000s)에 도달하기 약 0.05초 전부터 미리 소리를 준비하도록 감도 상향
+        var curSec = Math.floor((diff + 50) / 1000); 
+        if (!isResting && curSec > lastTickSecond) { 
+            playTick(); 
+            lastTickSecond = curSec; 
+        }
 
         if (document.getElementById('interval-on').checked && !isResting) {
-            var workMs = (parseInt(document.getElementById('work-time').value) || 0) * 1000;
-            if (diff >= workStartMs + workMs) {
-                elapsedTime = workStartMs + workMs; renderDisplay(elapsedTime);
-                addExerciseTime(workMs); currentRep++;
-                var goal = parseInt(document.getElementById('goal-sets').value) || 0;
-                if (goal > 0 && currentRep >= goal) {
-                    stopEngine("FINISH!"); confetti(); playClassicFanfare(); updateStreakLogic();
-                    var f = function(ms) { var s = Math.floor(ms/1000); return Math.floor(s/60) + "분 " + (s%60) + "초"; };
-                    document.getElementById('report-main-msg').innerHTML = "오늘 총 " + f(totalTime.today) + " 달성!<br>훌륭합니다!";
-                    document.getElementById('report-modal').style.display = 'flex'; return;
+            var workVal = parseInt(document.getElementById('work-time').value) || 0;
+            var restVal = parseInt(document.getElementById('rest-time').value) || 0;
+            var goal = parseInt(document.getElementById('goal-sets').value) || 0;
+
+            if (workVal > 0 || restVal > 0 || goal > 0) {
+                var workMs = workVal * 1000;
+                if (diff >= workStartMs + workMs) {
+                    elapsedTime = workStartMs + workMs; renderDisplay(elapsedTime);
+                    addExerciseTime(workMs); currentRep++;
+                    if (goal > 0 && currentRep >= goal) {
+                        stopEngine("FINISH!"); confetti(); playClassicFanfare(); updateStreakLogic();
+                        var f = function(ms) { var s = Math.floor(ms/1000); return Math.floor(s/60) + "분 " + (s%60) + "초"; };
+                        document.getElementById('report-main-msg').innerHTML = "오늘 총 " + f(totalTime.today) + " 달성!<br>훌륭합니다!";
+                        document.getElementById('report-modal').style.display = 'flex'; return;
+                    }
+                    startRestCycle(); return;
                 }
-                startRestCycle(); return;
             }
         }
         renderDisplay(diff);
-        if (!isResting) document.getElementById('status-text').innerText = document.getElementById('interval-on').checked ? "SET " + (currentRep + 1) + "/" + document.getElementById('goal-sets').value + " RUN" : "RUN";
+        if (!isResting) document.getElementById('status-text').innerText = document.getElementById('interval-on').checked ? "SET " + (currentRep + 1) + "/" + (document.getElementById('goal-sets').value || 0) + " RUN" : "RUN";
     }
 
     function addExerciseTime(ms) {
