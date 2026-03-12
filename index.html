@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Herbalife Prestige v39 - Full Stability</title>
+    <title>Herbalife Prestige v42 - Daily Community</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         :root {
@@ -20,9 +20,16 @@
         body {
             display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0;
             background: linear-gradient(180deg, #e2e2e2 0%, #c9d6ff 100%);
-            font-family: 'Segoe UI', sans-serif;
-            overflow: hidden; 
+            font-family: 'Segoe UI', sans-serif; overflow: hidden; 
         }
+
+        /* [수정] 오늘 참여 인원 표시 디자인 */
+        .live-counter {
+            position: absolute; top: 15px; left: 25px;
+            font-size: 1.1rem; font-weight: 900; color: var(--hl-white);
+            display: flex; align-items: center; gap: 8px; z-index: 20;
+        }
+        .live-dot { width: 10px; height: 10px; background: #7AC142; border-radius: 50%; box-shadow: 0 0 5px #7AC142; }
 
         .stopwatch-container {
             width: 92%; max-width: 420px; 
@@ -32,23 +39,20 @@
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
             display: flex; flex-direction: column; justify-content: space-between;
             color: var(--hl-white); border: 4px solid var(--hl-green-primary);
-            box-sizing: border-box;
-            position: relative;
+            box-sizing: border-box; position: relative;
         }
 
         .settings-btn {
             position: absolute; top: 12px; right: 18px;
             font-size: 1.6rem; cursor: pointer; z-index: 10;
-            transition: transform 0.3s ease;
-            color: rgba(255, 255, 255, 0.8);
+            transition: transform 0.3s ease; color: rgba(255, 255, 255, 0.8);
         }
 
         .display-wrapper {
             background-color: var(--hl-white); border-radius: 25px; 
-            padding: 12px 5px; margin-top: 40px;
+            padding: 12px 5px; margin-top: 45px;
             display: flex; flex-direction: column; align-items: center;
-            box-shadow: inset 0 5px 15px rgba(0,0,0,0.1);
-            width: 100%;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.1); width: 100%;
         }
         
         .display {
@@ -71,21 +75,17 @@
 
         .badge-title-display {
             font-size: 1.5rem; font-weight: 900; color: var(--hl-gold);
-            text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
-            letter-spacing: 1px; margin-bottom: 2px;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.5); letter-spacing: 1px; margin-bottom: 2px;
         }
 
         .badge-streak-row {
-            display: flex; justify-content: center; align-items: center;
-            gap: 25px; width: 100%;
+            display: flex; justify-content: center; align-items: center; gap: 25px; width: 100%;
         }
 
         .badge-box {
-            width: 85px; height: 85px; 
-            background: rgba(255, 255, 255, 0.1);
+            width: 85px; height: 85px; background: rgba(255, 255, 255, 0.1);
             border-radius: 15px; display: flex; justify-content: center; align-items: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2); overflow: hidden;
         }
         .badge-box img { width: 90%; height: 90%; object-fit: contain; }
 
@@ -95,19 +95,15 @@
         }
 
         .streak-container {
-            display: flex; align-items: center; gap: 8px;
-            font-weight: 800; font-size: 1.8rem;
-            color: var(--hl-white);
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.8rem;
+            color: var(--hl-white); text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
         .streak-flame { font-size: 2.3rem; }
         #streak-count { border-bottom: 2px dashed rgba(255,255,255,0.5); padding: 0 5px; cursor: pointer; }
 
         .settings-area {
-            display: flex; flex-direction: column; gap: 10px;
-            margin: 5px 0; padding: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex; flex-direction: column; gap: 10px; margin: 5px 0; padding: 15px;
+            background: rgba(255, 255, 255, 0.1); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .setting-row { display: flex; justify-content: space-between; align-items: center; font-size: 1.3rem; font-weight: 700; }
@@ -123,13 +119,9 @@
         input[type="number"] {
             width: 50px; border: none; border-radius: 8px; text-align: center;
             font-weight: bold; font-size: 1.2rem; color: var(--hl-green-deep);
-            padding: 5px 0;
-            -moz-appearance: textfield;
+            padding: 5px 0; -moz-appearance: textfield;
         }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
-            -webkit-appearance: none; margin: 0;
-        }
-        
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type="checkbox"], input[type="radio"] { width: 22px; height: 22px; cursor: pointer; accent-color: var(--hl-green-primary); }
         .disabled-group { opacity: 0.2; filter: grayscale(1); pointer-events: none; }
 
@@ -160,8 +152,7 @@
 
         .join-btn {
             display: flex; align-items: center; justify-content: center; gap: 10px;
-            width: 100%; box-sizing: border-box;
-            border: 2px solid var(--hl-green-primary); border-radius: 12px;
+            width: 100%; box-sizing: border-box; border: 2px solid var(--hl-green-primary); border-radius: 12px;
             padding: 10px; background: white; cursor: pointer; font-weight: 800; font-size: 1.1rem;
             text-decoration: none; color: var(--hl-text-dark); margin-bottom: 15px;
         }
@@ -188,6 +179,11 @@
 <body>
 
 <div class="stopwatch-container">
+    <div class="live-counter">
+        <div class="live-dot"></div>
+        오늘 함께한 사람 <span id="online-count">1</span> 명
+    </div>
+
     <div id="settings-open-btn" class="settings-btn">⚙️</div>
 
     <div class="display-wrapper">
@@ -288,8 +284,42 @@
     </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
 <script>
-    // v34 기반 안정 데이터 복구
+    // [설정] 파이어베이스 정보
+    var firebaseConfig = {
+        apiKey: "AIzaSyACP750T_12KThV_UjVQLqI-8tRPkV4-Fc",
+        authDomain: "stop-watch-cf875.firebaseapp.com",
+        projectId: "stop-watch-cf875",
+        storageBucket: "stop-watch-cf875.firebasestorage.app",
+        messagingSenderId: "132909896998",
+        appId: "1:132909896998:web:a59454e98bb91dfa5d5de7"
+    };
+    firebase.initializeApp(firebaseConfig);
+    var database = firebase.database();
+
+    // [신규] 오늘 하루 참여자 합산 및 중복 방지 로직
+    var todayStr = new Date().toISOString().split('T')[0]; // 예: 2026-03-12
+    var dailyRef = database.ref('dailyStats/' + todayStr);
+    
+    // 이 폰에서 오늘 이미 카운트했는지 확인
+    var lastCheckIn = localStorage.getItem('lastParticipantCheckInDate');
+    
+    if (lastCheckIn !== todayStr) {
+        // 오늘 첫 방문인 경우에만 숫자를 1 올림
+        dailyRef.transaction(function(curr) { return (curr || 0) + 1; });
+        localStorage.setItem('lastParticipantCheckInDate', todayStr);
+    }
+
+    // 화면에 실시간으로 '오늘의 총 참여자' 표시
+    dailyRef.on('value', function(snap) {
+        var count = snap.val() || 1;
+        document.getElementById('online-count').innerText = count;
+    });
+
+    // ---------------- v39 안정 로직 100% 보존 ----------------
     const IMG_URLS = {
         badge1: "https://i.ibb.co/29wC93R/badge1.png", badge2: "https://i.ibb.co/KcS1R4tR/badge2.png",
         badge3: "https://i.ibb.co/B2WBSkvH/badge3.png", badge4: "https://i.ibb.co/HfyH1MYH/badge4.png",
@@ -309,7 +339,7 @@
     var startTime, elapsedTime = 0, timerInterval, restInterval, audioCtx;
     var currentRep = 0, isResting = false, workStartMs = 0, lastTickSecond = -1;
     var totalTime = { today: 0, month: 0, all: 0, lastDate: "" };
-    var wakeLockObj = null; // 초안정화 전역 변수
+    var wakeLockObj = null;
 
     function init() { loadStats(); initStreakUI(); document.getElementById('join-logo').src = IMG_URLS.badge1; updateReadyStatus(); }
 
@@ -350,20 +380,13 @@
         }
     }
 
-    // [최고 안정화] 화면 꺼짐 방지 - 고전적 함수 방식
     function safeWakeLock() {
         if (typeof navigator !== 'undefined' && navigator.wakeLock) {
-            try {
-                navigator.wakeLock.request('screen').then(function(l) { wakeLockObj = l; }).catch(function(){});
-            } catch(e) {}
+            try { navigator.wakeLock.request('screen').then(function(l) { wakeLockObj = l; }).catch(function(){}); } catch(e) {}
         }
     }
 
-    function releaseWakeLock() {
-        if (wakeLockObj) {
-            try { wakeLockObj.release(); wakeLockObj = null; } catch(e) {}
-        }
-    }
+    function releaseWakeLock() { if (wakeLockObj) { try { wakeLockObj.release(); wakeLockObj = null; } catch(e) {} } }
 
     function playTick() {
         try {
@@ -409,9 +432,7 @@
         if (timerInterval || isResting) return;
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') audioCtx.resume();
-        
-        safeWakeLock(); // [v34 기반에 추가된 유일한 기능]
-        
+        safeWakeLock();
         syncTimeFromDisplay(); startTime = Date.now(); lastTickSecond = -1;
         timerInterval = setInterval(update, 10);
         document.getElementById('status-text').style.color = "var(--hl-red)";
@@ -450,7 +471,7 @@
     }
 
     function stopEngine(status) {
-        releaseWakeLock(); // [보정]
+        releaseWakeLock();
         if (timerInterval) {
             var session = Date.now() - startTime;
             if (session > 500) { addExerciseTime(session); if (!document.getElementById('interval-on').checked) updateStreakLogic(); }
@@ -495,7 +516,6 @@
         elapsedTime = ((m * b + s) * 1000) + (ms * 10); workStartMs = elapsedTime;
     }
 
-    // 버튼 이벤트 리스너 (v34 기반)
     document.getElementById('start-btn').onclick = startTimer;
     document.getElementById('stop-btn').onclick = function() { stopEngine("PAUSED"); };
     document.getElementById('reset-btn').onclick = function() { stopEngine("PAUSED"); elapsedTime = 0; currentRep = 0; renderDisplay(0); document.querySelectorAll('#interval-inputs input').forEach(function(i){ i.value = "0"; }); updateReadyStatus(); };
