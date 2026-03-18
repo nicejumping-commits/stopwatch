@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Herbalife Prestige v60 - Silent Edit</title>
+    <title>Herbalife Prestige v63 - Security Hardened</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         :root {
@@ -56,7 +56,13 @@
         .setting-item { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 0.95rem; font-weight: 800; }
         .stepper { display: flex; align-items: center; gap: 3px; }
         .step-btn { width: 22px; height: 22px; border-radius: 5px; border: none; background: var(--hl-green-primary); color: white; font-weight: bold; cursor: pointer; }
-        input[type="number"] { width: 55px; border: none; border-radius: 8px; text-align: center; font-weight: bold; font-size: 1.15rem; color: var(--hl-green-deep); padding: 4px 0; }
+        input[type="number"] { 
+            width: 55px; border: none; border-radius: 8px; text-align: center; 
+            font-weight: bold; font-size: 1.15rem; color: var(--hl-green-deep); padding: 4px 0;
+            -moz-appearance: textfield;
+        }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
         input[type="checkbox"], input[type="radio"] { width: 20px; height: 20px; cursor: pointer; accent-color: var(--hl-green-primary); }
         .disabled-group { opacity: 0.2; filter: grayscale(1); pointer-events: none; }
 
@@ -84,7 +90,6 @@
         .club-input-group input { width: 100%; box-sizing: border-box; padding: 8px; border-radius: 8px; border: 1px solid #ccc; font-weight: 700; font-size: 0.9rem; }
         .club-btn { background: #e2efd9; border: 1px solid #70ad47; color: #385723; width: 100%; padding: 12px; border-radius: 15px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 5px; }
         .daily-warning { display: none; color: var(--hl-red); font-size: 0.85rem; font-weight: 700; margin-top: 10px; line-height: 1.4; text-align: center; }
-        
         #data-display-area { margin-top: 10px; padding: 10px; background: #f0f4eb; border-radius: 10px; font-size: 0.9rem; display: none; }
         .badge-collection { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 10px; width: 100%; }
         .badge-collection img { width: 35px !important; height: 35px !important; object-fit: contain; }
@@ -182,7 +187,10 @@
             <div class="club-input-group" style="margin-top:5px;"><label>클럽 이름</label><input type="text" id="club-display-name" placeholder="나이스점핑"></div>
             <div style="display:flex; align-items:center; justify-content:space-between; margin-top:15px; padding-top:10px; border-top:1px dashed #ccc;">
                 <div class="club-input-group" style="flex:1;"><label>암호설정 (4자리)</label><input type="password" id="club-pw" maxlength="4" style="width:70px;"></div>
-                <div style="display:flex; align-items:center; gap:8px;"><span style="font-size:0.9rem; font-weight:900;">잠금</span><input type="checkbox" id="club-lock"></div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:0.9rem; font-weight:900;">잠금</span>
+                    <input type="checkbox" id="club-lock" checked>
+                </div>
             </div>
         </div>
         <button id="club-save-back" class="close-btn">뒤로가기 및 저장</button>
@@ -202,8 +210,9 @@
     if (lastCheckIn !== todayStr) { dailyRef.transaction(function(curr) { return (curr || 0) + 1; }); localStorage.setItem('lastParticipantCheckInDate', todayStr); }
     dailyRef.on('value', function(snap) { document.getElementById('online-count').innerText = snap.val() || 1; });
 
-    const SLOGANS = ["자식에게 짐이 되지 않는 건강, 허벅지 근육에서 나옵니다.", "약은 지방을 빼주지만, 근육은 당신이 지켜야 합니다.", "이 타이머가 삑- 울릴 때까지 버티세요. 수명이 늘어납니다.", "오늘 하루 운동이 당신의 백세를 결정합니다.", "근육은 저금통입니다. 오늘 조금씩 저금하세요!"];
     const IMG_URLS = { badge1: "https://i.ibb.co/29wC93R/badge1.png", badge2: "https://i.ibb.co/KcS1R4tR/badge2.png", badge3: "https://i.ibb.co/B2WBSkvH/badge3.png", badge4: "https://i.ibb.co/HfyH1MYH/badge4.png", badge5: "https://i.ibb.co/WNBYY0tM/badge5.png", badge6: "https://i.ibb.co/CR0jVD3/badge6.png", badge7: "https://i.ibb.co/KcZndrJ7/badge7.png", badge8: "https://i.ibb.co/JjxDDr2Q/badge8.png", badge9: "https://i.ibb.co/k2912tWn/badge9.png" };
+    Object.values(IMG_URLS).forEach(url => { const img = new Image(); img.src = url; });
+
     const badgeMap = [ { day: 300, file: IMG_URLS.badge9, name: '파운더스클럽' }, { day: 200, file: IMG_URLS.badge8, name: '체어맨스클럽' }, { day: 150, file: IMG_URLS.badge7, name: '프레지던트팀' }, { day: 100, file: IMG_URLS.badge6, name: '7500 밀리어네어팀' }, { day: 50,  file: IMG_URLS.badge5, name: '밀리어네어팀' }, { day: 30,  file: IMG_URLS.badge4, name: '2500 겟팀' }, { day: 10,  file: IMG_URLS.badge3, name: '겟팀' }, { day: 3,   file: IMG_URLS.badge2, name: '월드팀' }, { day: 0,   file: IMG_URLS.badge1, name: '슈퍼바이저' } ];
 
     var startTime, elapsedTime = 0, timerInterval, restInterval, audioCtx;
@@ -213,6 +222,7 @@
     var currentMode = 'normal';
 
     function init() { loadStats(); initStreakUI(); loadClubDetailedInfo(); document.getElementById('join-logo').src = IMG_URLS.badge1; updateReadyStatus(); document.getElementById('slogan-text').innerText = SLOGANS[Math.floor(Math.random() * SLOGANS.length)]; }
+    const SLOGANS = ["자식에게 짐이 되지 않는 건강, 허벅지 근육에서 나옵니다.", "약은 지방을 빼주지만, 근육은 당신이 지켜야 합니다.", "이 타이머가 삑- 울릴 때까지 버티세요. 수명이 늘어납니다.", "오늘 하루 운동이 당신의 백세를 결정합니다.", "근육은 저금통입니다. 오늘 조금씩 저금하세요!"];
     function loadStats() { var saved = JSON.parse(localStorage.getItem('exerciseStats')) || { today: 0, month: 0, all: 0, lastDate: "" }; if (saved.lastDate !== new Date().toDateString()) saved.today = 0; totalTime = saved; }
     function initStreakUI() { var streak = parseInt(localStorage.getItem('streakCount')) || 0; var mode = localStorage.getItem('streakMode') || 'cumulative'; document.querySelector('input[name="streak-mode"][value="' + mode + '"]').checked = true; document.getElementById('daily-warning-text').style.display = (mode === 'daily') ? 'block' : 'none'; document.getElementById('streak-count').innerText = streak; updateBadgeDisplay(streak); }
     function updateBadgeDisplay(streak) { var currentIdx = badgeMap.findIndex(function(b) { return streak >= b.day; }); var currentBadge = badgeMap[currentIdx]; if (currentBadge) { document.getElementById('badge-icon').src = currentBadge.file; document.getElementById('badge-name-label').innerText = currentBadge.name; if (streak >= 300) document.getElementById('badge-status-msg').innerText = "당신은 세계적인 파운더스 클럽입니다~^^"; else { var nextBadge = badgeMap[currentIdx - 1]; if (nextBadge) document.getElementById('badge-status-msg').innerText = "다음 " + nextBadge.name + "까지 " + (nextBadge.day - streak) + "일 남았습니다!"; } } }
@@ -231,10 +241,44 @@
     function syncTimeFromDisplay() { var m = parseInt(document.getElementById('min-val').innerText)||0, s = parseInt(document.getElementById('sec-val').innerText)||0, ms = parseInt(document.getElementById('ms-val').innerText)||0; var b = parseInt(document.querySelector('input[name="time-mode"]:checked').value); elapsedTime = ((m * b + s) * 1000) + (ms * 10); workStartMs = elapsedTime; }
     function applyMode(mode) { currentMode = mode; document.querySelectorAll('.mode-chip').forEach(function(c){ c.classList.remove('active'); }); document.getElementById('mode-' + mode).classList.add('active'); stopEngine("PAUSED"); elapsedTime = 0; currentRep = 0; workStartMs = 0; renderDisplay(0); var intervalOn = document.getElementById('interval-on'); var inputs = document.getElementById('interval-inputs'); if(mode === 'middle') { intervalOn.checked = true; inputs.classList.remove('disabled-group'); document.getElementById('goal-sets').value = 3; document.getElementById('work-time').value = 100; document.getElementById('rest-time').value = 30; } else if(mode === 'silver') { intervalOn.checked = true; inputs.classList.remove('disabled-group'); document.getElementById('goal-sets').value = 5; document.getElementById('work-time').value = 30; document.getElementById('rest-time').value = 60; } else { intervalOn.checked = false; inputs.classList.add('disabled-group'); document.getElementById('goal-sets').value = 0; document.getElementById('work-time').value = 0; document.getElementById('rest-time').value = 0; } }
 
-    function loadClubDetailedInfo() { var info = JSON.parse(localStorage.getItem('clubDetailedSettings')) || { memberId: "82y2040563", nameKor: "미옥", nameEng: "Mi Ok", lastKor: "강", lastEng: "Kang", displayName: "나이스점핑", pw: "0000", locked: false }; document.getElementById('club-member-id').value = info.memberId; document.getElementById('club-name-kor').value = info.nameKor; document.getElementById('club-name-eng').value = info.nameEng; document.getElementById('club-last-kor').value = info.lastKor; document.getElementById('club-last-eng').value = info.lastEng; document.getElementById('club-display-name').value = info.displayName; document.getElementById('club-pw').value = info.pw; document.getElementById('club-lock').checked = info.locked; applyLockUI(info.locked); document.getElementById('club-title-header').innerText = info.displayName || "설정"; }
-    function saveClubDetailedInfo() { var isLocked = document.getElementById('club-lock').checked; var info = { memberId: document.getElementById('club-member-id').value, nameKor: document.getElementById('club-name-kor').value, nameEng: document.getElementById('club-name-eng').value, lastKor: document.getElementById('club-last-kor').value, lastEng: document.getElementById('club-last-eng').value, displayName: document.getElementById('club-display-name').value, pw: document.getElementById('club-pw').value || "0000", locked: isLocked }; localStorage.setItem('clubDetailedSettings', JSON.stringify(info)); document.getElementById('club-title-header').innerText = info.displayName || "설정"; }
+    // [v63] 클럽 보안 설정 초기화 정밀 보정
+    function loadClubDetailedInfo() {
+        var info = JSON.parse(localStorage.getItem('clubDetailedSettings'));
+        
+        // 데이터가 없거나, 이전 버전의 암호('0000')인 경우 강제로 '0608' 및 잠금 적용
+        if (!info || info.pw === "0000") {
+            info = { 
+                memberId: "82y2040563", nameKor: "미옥", nameEng: "Mi Ok", lastKor: "강", lastEng: "Kang", 
+                displayName: "나이스점핑", pw: "0608", locked: true 
+            };
+            localStorage.setItem('clubDetailedSettings', JSON.stringify(info));
+        }
+        
+        document.getElementById('club-member-id').value = info.memberId;
+        document.getElementById('club-name-kor').value = info.nameKor;
+        document.getElementById('club-name-eng').value = info.nameEng;
+        document.getElementById('club-last-kor').value = info.lastKor;
+        document.getElementById('club-last-eng').value = info.lastEng;
+        document.getElementById('club-display-name').value = info.displayName;
+        document.getElementById('club-pw').value = info.pw;
+        document.getElementById('club-lock').checked = info.locked;
+        
+        applyLockUI(info.locked);
+        document.getElementById('club-title-header').innerText = info.displayName || "설정";
+    }
+
+    function saveClubDetailedInfo() { var isLocked = document.getElementById('club-lock').checked; var info = { memberId: document.getElementById('club-member-id').value, nameKor: document.getElementById('club-name-kor').value, nameEng: document.getElementById('club-name-eng').value, lastKor: document.getElementById('club-last-kor').value, lastEng: document.getElementById('club-last-eng').value, displayName: document.getElementById('club-display-name').value, pw: document.getElementById('club-pw').value || "0608", locked: isLocked }; localStorage.setItem('clubDetailedSettings', JSON.stringify(info)); document.getElementById('club-title-header').innerText = info.displayName || "설정"; }
     function applyLockUI(locked) { var ids = ['club-member-id', 'club-name-kor', 'club-name-eng', 'club-last-kor', 'club-last-eng', 'club-display-name', 'club-pw']; ids.forEach(function(id) { document.getElementById(id).disabled = locked; }); }
-    document.getElementById('club-lock').onchange = function(e) { var saved = JSON.parse(localStorage.getItem('clubDetailedSettings')) || { pw: "0000" }; if (!e.target.checked) { var input = prompt("정보 수정을 위해 암호 4자리를 입력하세요."); if (input !== saved.pw) { alert("암호가 일치하지 않습니다."); e.target.checked = true; return; } } applyLockUI(e.target.checked); saveClubDetailedInfo(); };
+    
+    document.getElementById('club-lock').onchange = function(e) { 
+        var saved = JSON.parse(localStorage.getItem('clubDetailedSettings')) || { pw: "0608" }; 
+        if (!e.target.checked) { 
+            var input = prompt("정보 수정을 위해 암호 4자리를 입력하세요."); 
+            if (input !== saved.pw) { alert("암호가 일치하지 않습니다."); e.target.checked = true; return; } 
+        } 
+        applyLockUI(e.target.checked); saveClubDetailedInfo(); 
+    };
+
     document.getElementById('open-club-settings').onclick = function() { document.getElementById('settings-main-view').style.display = 'none'; document.getElementById('club-settings-view').style.display = 'block'; };
     document.getElementById('club-save-back').onclick = function() { saveClubDetailedInfo(); document.getElementById('club-settings-view').style.display = 'none'; document.getElementById('settings-main-view').style.display = 'block'; };
 
@@ -254,22 +298,7 @@
     document.getElementById('start-btn').onclick = startTimer;
     document.getElementById('stop-btn').onclick = function() { stopEngine("PAUSED"); };
     document.getElementById('reset-btn').onclick = function() { stopEngine("PAUSED"); elapsedTime = 0; currentRep = 0; workStartMs = 0; renderDisplay(0); document.querySelectorAll('#interval-inputs input').forEach(function(i){ i.value = "0"; }); updateReadyStatus(); };
-    
-    // [수정] 근육 점수 수정 기능 (알림창 제거)
-    document.getElementById('view-record-btn').onclick = function() { 
-        document.getElementById('data-display-area').style.display = 'block'; 
-        var f = function(ms) { var s = Math.floor(ms/1000); return Math.floor(s/3600) + "시간 " + Math.floor((s%3600)/60) + "분 " + (s%60) + "초"; }; 
-        var score = Math.floor((totalTime.all || 0) / 60000);
-        document.getElementById('data-display-area').innerHTML = "오늘: " + f(totalTime.today) + "<br>누적: " + f(totalTime.all || 0) + " (<span id='edit-all-score' contenteditable='true' style='border-bottom:1px dashed #7AC142;'>" + score + "</span>점)"; 
-        
-        document.getElementById('edit-all-score').onblur = function() {
-            var ns = parseInt(this.innerText.replace(/[^0-9]/g, '')) || 0;
-            totalTime.all = ns * 60000;
-            localStorage.setItem('exerciseStats', JSON.stringify(totalTime));
-            // alert() 호출 제거
-        };
-    };
-
+    document.getElementById('view-record-btn').onclick = function() { document.getElementById('data-display-area').style.display = 'block'; var f = function(ms) { var s = Math.floor(ms/1000); return Math.floor(s/3600) + "시간 " + Math.floor((s%3600)/60) + "분 " + (s%60) + "초"; }; var score = Math.floor((totalTime.all || 0) / 60000); document.getElementById('data-display-area').innerHTML = "오늘: " + f(totalTime.today) + "<br>누적: " + f(totalTime.all || 0) + " (<span id='edit-all-score' contenteditable='true' style='border-bottom:1px dashed #7AC142;'>" + score + "</span>점)"; document.getElementById('edit-all-score').onblur = function() { var ns = parseInt(this.innerText.replace(/[^0-9]/g, '')) || 0; totalTime.all = ns * 60000; localStorage.setItem('exerciseStats', JSON.stringify(totalTime)); }; };
     document.getElementById('view-badges-btn').onclick = function() { document.getElementById('data-display-area').style.display = 'block'; var s = parseInt(localStorage.getItem('streakCount')) || 0, h = '<div class="badge-collection">'; badgeMap.slice().reverse().forEach(function(b){ if(s >= b.day) h += '<img src="' + b.file + '" title="' + b.name + '">'; }); document.getElementById('data-display-area').innerHTML = h + '</div>'; };
     document.getElementById('report-close-btn').onclick = function() { document.getElementById('report-modal').style.display = 'none'; updateReadyStatus(); };
     document.getElementById('full-reset-btn').onclick = function() { if(confirm('기록을 초기화할까요?')) { localStorage.clear(); location.reload(); } };
